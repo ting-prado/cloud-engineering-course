@@ -1,0 +1,1 @@
+{ "webPort": 4190, "apiPort": 4300, "upstreamPort": 4301, "dataFile": "data/incident.json" }

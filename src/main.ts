@@ -8,7 +8,7 @@ import { grades } from './pages/grades';
 import { library } from './pages/resources';
 import { capstone } from './pages/capstone';
 import { settings } from './pages/settings';
-import { questionsFor } from './curriculum';
+import { questionsForAssessment, weeks, ASSESSMENT_VERSION } from './curriculum';
 import type { Kind } from './curriculum/types';
 import { dateLabel, key } from './lib/academic';
 import {
@@ -18,10 +18,11 @@ import {
   parseBackup,
   objectiveScore,
   attemptScore,
-  quizKey,
   storageIssue,
   type Attempt,
   type StudentData,
+  STORAGE_KEY,
+  LEGACY_KEY,
 } from './lib/store';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -141,8 +142,9 @@ function bindPage() {
       const fields = new FormData(form),
         id = form.dataset.id!;
       const text = String(fields.get('evidence')).trim();
-      if (!text) {
-        notify('Add your evidence or submission notes first.');
+      if (weeks[Number(id.split('-')[0]) - 1]?.status !== 'ready') return;
+      if (text.length < 80) {
+        notify('Record at least 80 characters of evidence and explanation before revealing feedback.');
         return;
       }
       data.submissions[id] = { text, date: new Date().toISOString() };
@@ -158,6 +160,7 @@ function bindPage() {
   );
   document.querySelectorAll<HTMLInputElement>('[data-grade]').forEach((el) =>
     el.addEventListener('change', () => {
+      if (weeks[Number(el.dataset.grade!.split('-')[0]) - 1]?.status !== 'ready') return;
       if (!el.checkValidity()) {
         el.reportValidity();
         return;
@@ -171,35 +174,48 @@ function bindPage() {
       notify('Grade saved.');
     }),
   );
-  const quizForm = document.querySelector<HTMLFormElement>('#quiz-form');
-  quizForm?.addEventListener('input', () => {
-    data.drafts[quizKey(Number(quizForm.dataset.week))] = collectAnswers(quizForm);
-    persist();
-  });
-  quizForm?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const week = Number(quizForm.dataset.week);
-    const qs = questionsFor(week, [12, 24].includes(week));
-    const answers = collectAnswers(quizForm);
-    if (qs.some((q, i) => q.type === 'multiple' && !(answers[i] as number[])?.length)) {
-      notify('Choose at least one option for every multiple-answer question.');
-      return;
-    }
-    const score = objectiveScore(qs, answers);
-    const a: Attempt = {
-      id: crypto.randomUUID(),
-      quiz: quizKey(week),
-      date: new Date().toISOString(),
-      answers,
-      ...score,
-      shortScores: {},
-    };
-    data.attempts.push(a);
-    delete data.drafts[a.quiz];
-    persist();
-    render();
-    document.querySelector(`#attempt-result-${a.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    notify('Answers submitted. Review explanations and self-assess short answers.');
+  document.querySelectorAll<HTMLFormElement>('form[data-assessment]').forEach((quizForm) => {
+    quizForm.addEventListener('input', () => {
+      data.drafts[quizForm.dataset.assessment!] = collectAnswers(quizForm);
+      persist();
+    });
+    quizForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const assessmentId = quizForm.dataset.assessment!;
+      const qs = questionsForAssessment(assessmentId);
+      const answers = collectAnswers(quizForm);
+      if (
+        !qs.length ||
+        qs.some((q, i) =>
+          q.type === 'short' ? !(answers[i] as string)?.trim() : !(answers[i] as number[])?.length,
+        )
+      ) {
+        notify('Answer every question, including a reflection or honest unknown, before submitting.');
+        return;
+      }
+      const score = objectiveScore(qs, answers);
+      const a: Attempt = {
+        id: crypto.randomUUID(),
+        quiz: assessmentId,
+        assessmentVersion: ASSESSMENT_VERSION,
+        date: new Date().toISOString(),
+        answers,
+        ...score,
+        shortScores: {},
+      };
+      data.attempts.push(a);
+      delete data.drafts[a.quiz];
+      persist();
+      render();
+      document
+        .querySelector(`#attempt-result-${a.id}`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      notify(
+        assessmentId.endsWith('-diagnostic')
+          ? 'Ungraded reflection saved. Compare the models; no grade was recorded.'
+          : 'Answers submitted. Review explanations and self-assess the short answer.',
+      );
+    });
   });
   document.querySelector<HTMLInputElement>('#import-file')?.addEventListener('change', async (e) => {
     const input = e.target as HTMLInputElement;
@@ -207,7 +223,7 @@ function bindPage() {
     if (!file) return;
     const status = document.querySelector('#import-status')!;
     try {
-      if (file.size > 10_000_000) throw new Error('Choose a backup smaller than 10 MB.');
+      if (file.size > 25_000_000) throw new Error('Choose a backup smaller than 25 MB.');
       const imported = parseBackup(await file.text());
       showImport(imported);
     } catch (error) {
@@ -217,10 +233,9 @@ function bindPage() {
   });
 }
 function collectAnswers(form: HTMLFormElement) {
-  const week = Number(form.dataset.week);
   const fields = new FormData(form);
   const answers: Attempt['answers'] = {};
-  questionsFor(week, [12, 24].includes(week)).forEach((q, i) => {
+  questionsForAssessment(form.dataset.assessment!).forEach((q, i) => {
     answers[i] = q.type === 'short' ? String(fields.get(`q${i}`) || '') : fields.getAll(`q${i}`).map(Number);
   });
   return answers;
@@ -229,7 +244,7 @@ let pendingImport: StudentData | null = null;
 function showImport(next: StudentData) {
   pendingImport = next;
   document.querySelector('#modal-root')!.innerHTML =
-    `<dialog id="import-dialog"><h2>Restore this academic record?</h2><p>This backup contains ${next.completed.length} completed sessions, ${Object.keys(next.notes).length} notes, ${next.attempts.length} attempts and ${Object.keys(next.grades).length} manual grades.</p><p>Confirming replaces your current record on this browser. Export a backup first if you want to keep it.</p><div class="dialog-actions"><button class="button quiet" data-action="export">Export current record</button><button class="button quiet" data-action="cancel-import">Cancel</button><button class="button primary" data-action="confirm-import">Replace & restore</button></div></dialog>`;
+    `<dialog id="import-dialog"><h2>Restore this academic record?</h2><p>This backup contains ${next.completed.length} current completions, ${Object.keys(next.notes).length} current notes, ${next.attempts.length} current attempts and ${next.archives.length} archived records.</p><p>Version-1 progress stays in its historical curriculum and earns no redesigned scores. Confirming replaces active progress; current work is snapshotted and existing archives are retained.</p><div class="dialog-actions"><button class="button quiet" data-action="export">Export current record</button><button class="button quiet" data-action="cancel-import">Cancel</button><button class="button primary" data-action="confirm-import">Replace & restore</button></div></dialog>`;
   document.querySelector<HTMLDialogElement>('#import-dialog')!.showModal();
 }
 document.addEventListener('change', (e) => {
@@ -268,6 +283,7 @@ document.addEventListener('click', async (e) => {
       document.body.classList.toggle('menu-open');
       break;
     case 'complete': {
+      if (weeks[Number(button.dataset.week) - 1]?.status !== 'ready') return;
       const id = key(Number(button.dataset.week), button.dataset.kind as Kind);
       if (data.completed.includes(id)) data.completed = data.completed.filter((x) => x !== id);
       else data.completed.push(id);
@@ -326,16 +342,47 @@ document.addEventListener('click', async (e) => {
       notify('Backup exported. Keep a copy somewhere safe.');
       break;
     }
+    case 'archive-export': {
+      const archived = data.archives.find((a) => a.id === button.dataset.id);
+      if (!archived) return;
+      const url = URL.createObjectURL(new Blob([archived.raw], { type: 'application/json' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `academy-${archived.curriculumId}-${archived.id}.json`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      break;
+    }
+    case 'recovery-export': {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY);
+        if (!raw) {
+          notify('No readable original browser record was found.');
+          break;
+        }
+        const url = URL.createObjectURL(new Blob([raw], { type: 'application/json' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'academy-browser-recovery-original.json';
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } catch {
+        notify(
+          'Browser storage cannot be read. Keep the existing site data and resolve storage access before retrying.',
+        );
+      }
+      break;
+    }
     case 'cancel-import':
       document.querySelector<HTMLDialogElement>('#import-dialog')?.close();
       pendingImport = null;
       break;
     case 'confirm-import':
       if (pendingImport) {
-        replaceData(pendingImport);
+        const restored = replaceData(pendingImport);
         pendingImport = null;
         render();
-        notify(storageIssue || 'Your academic record has been restored.');
+        notify(restored ? 'Active progress restored; historical records retained.' : storageIssue);
       }
       break;
     case 'attempt': {

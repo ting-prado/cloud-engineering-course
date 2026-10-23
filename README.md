@@ -1,132 +1,109 @@
-# Cloud Engineering Academy
+﻿# Cloud Engineering Academy
 
-A self-hosted personal school for a developer learning Microsoft Azure cloud engineering. The application is a static TypeScript/Vite site: no backend, accounts, API keys or paid services are needed to use the school.
+A static self-study school for a working developer transitioning to Azure infrastructure engineering. The approved redesign is [the curriculum audit](docs/CURRICULUM_AUDIT.md); implementation is deliberately staged.
 
-The 24-week program runs **October 24, 2026–April 9, 2027**, in **Asia/Manila**. Saturday lecture and Sunday laboratory run 09:00–12:00; Wednesday review/assessment runs 09:00–11:00. Dates are generated from the actual start date. Attendance is flexible and lessons never lock.
+**Current release: R2, Stage 1.** The complete revised 24-week syllabus is present. **Only Week 1’s three sessions are ready for learning. Weeks 2–24 are planned**, with explicit outlines/status instead of relabeled legacy lessons or active placeholder quizzes. See [batch targets and readiness scope](docs/REDESIGN_STAGES.md).
 
-## Run locally
+The program runs October 24, 2026–April 9, 2027 in **Asia/Manila**. Classes: Saturday and Sunday 09:00–12:00; Wednesday 09:00–11:00. Dates are generated, study is flexible, and Week 1’s budgets are exactly **180/180/120 minutes** including reading, evidence, breaks and remediation.
 
-Requires Node.js 22.12+ or a supported newer release and npm.
+## Run, build and verify
+
+Requires Node.js 22.12+ or a supported newer release and npm. On PowerShell with script execution restrictions, use `npm.cmd`/`npx.cmd`.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open the URL Vite prints, normally `http://127.0.0.1:5173`. On Windows PowerShell with script execution restrictions, use `npm.cmd` and `npx.cmd` instead of `npm` and `npx`.
+The dev script packages the Week 1 workload and starts Vite, normally at `http://127.0.0.1:5173/`.
 
 ```sh
-npm test             # academic, grading, backup and content-contract checks
-npm run build       # TypeScript check + production build into dist/
-npm run preview     # inspect the built production application
+npm test             # academic, migration, grading, packaging and real API/proxy tests
+npm run build       # package workload, type-check and emit dist/
+npm run preview     # serve the production build
 ```
 
-Do not double-click the source `index.html`: use the development server or serve the production `dist/` folder over HTTP.
+Stop the dev server with Ctrl+C before `npm ci` on Windows: a running Vite/Rollup process can lock its native module. Do not open the source index.html directly; use HTTP hosting.
 
-## What is implemented
+## What Week 1 includes
 
-- Responsive dashboard with Continue Learning, the current academic week, progress, grades, pending submissions, recent results and upcoming classes.
-- Complete six-module syllabus, searchable by topic, and 72 separate lecture/lab/review pages. Every week has authored explanations, objectives, terminology, a misconception, summary, review questions and external references. Labs have five tasks, setup, validation, troubleshooting, submission requirements, rubrics and cleanup. Selected labs include fuller local/cloud command walkthroughs.
-- Reader with table of contents, syntax-styled/copyable code, diagrams, tables, previous/next navigation, explicit completion and autosaved notes.
-- Functional single-answer, multiple-answer, true/false and short-answer assessments. Weeks 12 and 24 use separate cumulative 19-question written examinations. Short responses receive revealed model answers and manual rubric scores, never simulated AI grading.
-- Weekly labs/documentation submissions, manual grades, separate foundation/final practical marks and a weighted gradebook.
-- Calendar with actual classes, Wednesday 11:00 assignment/lab targets and examination dates. All labels use Asia/Manila, independent of the computer’s time zone.
-- Complete capstone brief, requirements, recommended architecture, milestones, deliverables, failure tests, rubric and optional extensions.
-- Local persistence, light/dark themes and validated JSON export/import with preview and explicit replacement confirmation.
-- GitHub Pages deployment workflow, relative build assets and refresh-safe hash routes.
+- An ungraded six-question prior-knowledge diagnostic, saved separately from grades. Objective feedback and reflection models appear after submission; no pass mark or automatic short-text grade.
+- Detailed process/OS/resource/persistence teaching through a supplied existing React/Node reference workload. The student operates it rather than writing application features; they can also annotate their own known app.
+- A diagram and worked request/failure cases; bounded inspected MDN/Node/React readings with a 25-minute allocation. All required explanations and commands are on the lesson pages.
+- A guided request/state experiment, independent configuration variation, deliberately broken upstream incident, validation/cleanup and an honestly labeled evidence-only fallback.
+- An eight-question graded review with plausible distractors, mixed answer positions, exact-set multi-select and a topic-specific manually self-scored short response. Models appear after submission.
+- A fresh Wednesday evidence case, specific execution/documentation rubrics, saved submissions and post-submission feedback. The platform does not verify local execution or pretend to AI-grade arbitrary text.
+- Explicit study completion, notes/drafts/attempts, current grades, JSON backups, historic archives and refresh-safe navigation.
 
-All weeks contain authored material; there are no planned/empty lesson routes. The content is a guided self-study text rather than verbatim three-hour lecture transcripts: the eight-hour weekly allocation includes reading official resources, command experiments, lab work, retrieval and assessment. Some early Azure labs are design/read-only exercises; later lab pages explicitly distinguish local rehearsal from optional real Azure execution. A design-only submission must not be represented as observed cloud deployment evidence.
+## Standalone React/Node lab
 
-## Academic grading
+Use the lesson’s **Download ready-to-run workload** link. The build emits `dist/labs/week-01-workload.zip`. Extract it into a disposable directory and run:
 
-| Category                                    | Weight | Items |
-| ------------------------------------------- | -----: | ----: |
-| Weekly quizzes and cumulative written exams |    15% |    24 |
-| Laboratories                                |    35% |    24 |
-| Assignments and documentation               |    20% |    24 |
-| Semester 1 practical examination            |    10% |     1 |
-| Final capstone and practical examination    |    20% |     1 |
-
-There are **74 graded items**. Each item has equal weight within its category. A quiz’s best _finalized_ attempt counts. Objective answers require an exact match (no partial credit for multi-select); each short answer receives 0, 1 or 2 points, normalized to one question’s weight. An attempt is pending until every short answer is self-assessed.
-
-The gradebook exposes two distinct measures:
-
-1. **Current graded-work average:** earned weighted points divided by the weight represented by recorded assessments. Missing work is excluded.
-2. **Earned toward final grade:** all weighted points earned so far out of 100. Missing work contributes no earned points yet.
-
-A blank manual score is ungraded; **0 is a real assessed zero**. A low recorded score is highlighted for improvement. Program completion requires all 72 sessions marked complete, all 74 scores recorded and at least 75 final earned points. Marks are a personal self-assessment record, not an accredited qualification or independent evaluation.
-
-## Data ownership and backups
-
-The storage key is `cloud-academy-v1`. The data contract is in `src/lib/store.ts`. Progress, notes, submissions, quiz drafts/attempts, manual scores, theme and calendar month are saved in `localStorage`.
-
-- Opening a lesson never marks it complete. Use the explicit completion control.
-- Notes save while typing. Submissions save when **Record submission** or **Update submission** is pressed. Submission text/links are stored; files themselves are not uploaded.
-- Data is per browser, device and origin. Clearing site data or changing the hosting origin can create an apparently empty record. Export before changing hosts.
-- **Settings & backup → Export student data** downloads a versioned JSON file. It includes personal notes and links and is not encrypted.
-- Import validates the entire supported schema, bounds manual grades, rejects unsafe keys and recalculates objective scores. It previews record counts before replacement. Invalid files leave the current record intact. Import replaces rather than merges.
-- Storage failure is reported. If browser storage is unavailable/full, export immediately; changes may exist only in the current tab.
-
-Keep periodic backups outside the browser. Local grades and imported self-scores are inherently user-controlled; this is a personal school, not a tamper-proof examination service.
-
-## Deploy to GitHub Pages
-
-1. Push the project, including `package-lock.json`, to the repository’s `main` branch.
-2. In GitHub, open **Settings → Pages → Build and deployment → Source → GitHub Actions**.
-3. Run **Deploy Academy to GitHub Pages** or push to `main`.
-4. The workflow installs with `npm ci`, runs the academic checks, type-checks/builds and uploads `dist/`, then deploys using GitHub’s Pages action. The deployment job reports the actual site URL.
-
-If the default branch is different, update the workflow’s branch filter. Repository Actions/Pages must be enabled and permitted by the organization. The workflow uses GitHub’s normal Pages environment and permissions; no Azure credentials or repository secrets are needed. This repository is deployment-ready; publishing still requires a GitHub repository and a successful Actions run.
-
-`vite.config.ts` sets `base: './'`. All application navigation is hash-based, for example:
-
-```text
-https://OWNER.github.io/REPOSITORY/#/lesson/14/lab
+```sh
+node run.mjs guided
 ```
 
-Only the static base document is requested from the host; the fragment selects the page in the browser. Direct navigation and refresh therefore need no custom 404 fallback. GitHub Pages serves static content only; it does not store student data.
+Open `http://127.0.0.1:4170`. The package includes prebuilt React assets, separate Node web/API services, configs, launcher and licenses. **No npm install, Azure, Docker, Python, API key or paid service is needed to run it.** `variation` and `incident` modes are used by the lab. Ctrl+C stops the child services; verify stopped endpoints and keep only dummy data.
 
-## Browser checks
+The sample is intentionally not a production template: plain loopback HTTP, no authentication/database/cloud deployment, an in-memory counter and one local dummy data file. A process-restart persistence test is not a backup/disaster-recovery claim. Maintainers build assets with development-only React/React DOM/esbuild dependencies; the academy itself remains a lightweight TypeScript app.
 
-The browser suite uses Playwright and defaults to an installed Microsoft Edge channel. It does not install or launch a visible browser. With the dev server running on port 5173:
+## Progress versions and safe migration
+
+**Do not clear browser site data before migrating.** Student data lives per browser/device/origin; no backend exists. A hosted release cannot read another device’s or URL’s localStorage.
+
+- Current key: `cloud-academy-v2`; schema 2; curriculum `azure-2026-r2`; Week 1 assessment `week-01-r2.1`.
+- On first R2 load, an existing `cloud-academy-v1` record is validated using the **frozen original curriculum**, copied byte-for-byte to a unique `cloud-academy-archive-before-r2-*` key and verified before the R2 record is created. The original key is never deleted or rewritten.
+- Legacy grades, notes, attempts, drafts, submissions and completions stay archived. They are not reinterpreted using new week titles or question indices. Current R2 starts fresh; appearance/calendar preferences may carry forward.
+- Migration/storage failure blocks writes and leaves original records intact. Settings offers an original browser-record download when readable; resolve storage access/capacity before retrying. Do not erase the only copy.
+- Settings can display/download original historical records. A version-2 export contains current work **and** archives. A version-1 import becomes history; a compatible version-2 import restores active work. Confirmation occurs before replacement, current work is snapshotted and existing archives are retained.
+- Invalid files leave active data unchanged. Objective totals are recalculated against matching current assessment versions. Backups contain personal notes/links and are not encrypted. Current import limit is 25 MB; legacy records retain their original 10 MB validator limit.
+
+Future batches must keep authored assessment mappings stable or explicitly archive/migrate them. Never reorder old answer indices and reattribute historical scores. The migration contract and tests are in `src/lib/student-store.ts`; original validation lives in `legacy-store.ts` against `curriculum/legacy.ts`.
+
+## Grading and readiness
+
+The full-program category weights remain quizzes/written exams 15%, labs 35%, documentation 20%, foundation practical 10%, final practical/capstone 20%—74 planned items. Only the Week 1 quiz, lab and documentation currently accept scores. The diagnostic never contributes to grade/progress. The best finalized practice quiz counts; short responses remain pending until manual self-assessment. Blank means ungraded, while zero is an assessed zero.
+
+The current graded-work average excludes missing work. Earned final points use full-program weights and cannot represent a completed program at Stage 1. The audit’s independent mastery gates, revised midterm/final banks and later practicals are **planned**, so this release does not award full graduation. A study checkmark is not evidence of independent competence.
+
+## GitHub Pages deployment
+
+1. Push the source and lockfile to `main` (or update the workflow branch filter).
+2. Repository **Settings → Pages → Build and deployment → Source → GitHub Actions**.
+3. Run **Deploy Academy to GitHub Pages** or push to main.
+
+The existing workflow runs `npm ci`, tests and the production build, uploads `dist/` and deploys with the Pages environment. It needs no Azure credentials/secrets. Relative assets and hash routes support repository subpaths and refreshed URLs such as `https://OWNER.github.io/REPO/#/lesson/1/lab`. The workload ZIP is generated during CI and included in the artifact. No student data or local lab server is hosted by Pages.
+
+## Browser verification
+
+With the dev server on port 5173 and an installed Edge browser:
 
 ```sh
 npm run build
 npx playwright test
 ```
 
-For an installed Chromium browser on another machine, set `PLAYWRIGHT_CHANNEL=chromium` and install the Playwright browser if needed (`npx playwright install chromium`). On PowerShell: `$env:PLAYWRIGHT_CHANNEL='chromium'`.
+For another installed Playwright browser, set `PLAYWRIGHT_CHANNEL=chromium` and install that browser if necessary (`npx playwright install chromium`). In PowerShell: `$env:PLAYWRIGHT_CHANNEL='chromium'`.
 
-Browser checks cover the Week 1 learning/persistence/grade/export/import flow, all 72 session routes, navigation pages, filtering, invalid imports, responsive layout, theme persistence and the built application served from `/dist/` as a subdirectory. Screenshots are written under ignored `test-results/`. Academic unit tests run in CI; browser tests are optional because they require an available browser.
+Checks cover the full Week 1 workflow; diagnostic exclusion; hidden/revealed feedback; manual grading; notes/drafts/completion refresh; version-1 migration/archive/import/export; failed archival storage; planned routes/disabled assessments; mobile/large-screen layout and dark theme; built subdirectory navigation/download; and the downloaded React/Node workload’s real separate processes, counter restart, persistent file and connection failure/repair. They do not certify a human student’s independent performance. Screenshots and temporary results are ignored.
 
-## Content and maintenance
+## Authoring architecture
 
 ```text
-src/
-  curriculum/
-    types.ts           # authoring contracts
-    foundations.ts     # Weeks 1–8
-    azure.ts           # Weeks 9–16
-    engineering.ts     # Weeks 17–24
-    walkthroughs.ts    # worked cases and lab command examples
-    lab-guides.ts      # detailed optional cloud/local implementations
-    resources.ts       # shared official references and review status
-    index.ts           # assembly, exam selection and grading rubrics
-  lib/
-    academic.ts        # Manila scheduling and session identity
-    store.ts           # browser persistence, schema and quiz scoring
-    grades.ts          # weighted academic calculations
-  pages/               # dashboard, syllabus, calendar, reader, grades, resources, capstone, settings
-  ui.ts                # shared visual helpers, code blocks, resources and rubrics
-  main.ts              # application shell, hash routes and event handlers
-  styles.css           # themes, layouts, typography and responsive rules
-tests/
-  academy.test.ts
-  browser/learning.spec.ts
+src/curriculum/baseline.ts    # Approved metadata for all 24 weeks and module names
+src/curriculum/week-01.ts     # Ready R2 Week 1 text, plans, diagnostic, quiz and feedback
+src/curriculum/index.ts       # Active readiness and assessment selection
+src/curriculum/legacy.ts      # Frozen original curriculum/assessment mapping
+src/curriculum/{foundations,azure,engineering,walkthroughs,lab-guides}.ts
+                             # Preserved original content, not current planned lessons
+src/lib/student-store.ts      # Current schema, migration, archives and scoring
+src/lib/legacy-store.ts       # Original schema and frozen validation/scoring
+src/lib/academic.ts           # Actual Manila schedule
+src/lib/grades.ts             # Current weighted grade calculations
+src/pages/reader.ts           # Ready content, diagnostic/quiz and planned outlines
+labs/week-01/                # Runnable reference workload source
+scripts/package-labs.mjs      # Build React assets and standalone ZIP
+tests/                      # Academic, migration, workload and browser verification
 ```
 
-See [the authoring guide](docs/AUTHORING.md) for content fields and [resource review notes](docs/RESOURCES.md) for verified references and maintenance. Content is structured TypeScript and does not require editing UI components. Add paragraphs using `\n\n`; code and diagram arrays are separate fields. User text is HTML-escaped before rendering. The application does not execute lesson code.
-
-The only runtime external requests introduced by the interface are optional Google Fonts styles/fonts; system fonts provide a fallback. Documentation/video links open externally. No video autoplays or external assessment API is used. To remove font network requests entirely, remove the first `@import` in `src/styles.css` or self-host appropriately licensed fonts.
-
-Review Azure service behavior, CLI flags, resource API versions, GitHub OIDC claims and pricing periodically. The lesson examples deliberately avoid promising that a particular cloud configuration is free. No live Azure infrastructure was provisioned as part of building or testing this website.
+See [authoring guidance](docs/AUTHORING.md), [the audit](docs/CURRICULUM_AUDIT.md), [staged delivery](docs/REDESIGN_STAGES.md) and [resource review notes](docs/RESOURCES.md). Future content must pass readiness review before changing its status. Templates, grading/progress and course content remain separate. Existing text scale/theme design is retained; no general UI redesign is part of Stage 1.

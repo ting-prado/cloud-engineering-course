@@ -4,3 +4,8 @@ test-results/
 playwright-report/
 *.local
 .npm-cache/
+labs/week-01/browser.js
+labs/week-01/REACT-LICENSE.txt
+labs/week-01/REACT-DOM-LICENSE.txt
+labs/week-01/data/
+public/labs/week-01-workload.zip

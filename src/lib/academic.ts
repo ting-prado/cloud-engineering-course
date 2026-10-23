@@ -1,15 +1,9 @@
 import type { Kind } from '../curriculum/types';
+import { MODULES } from '../curriculum/baseline';
 export const TIMEZONE = 'Asia/Manila';
 export const KINDS: Kind[] = ['lecture', 'lab', 'review'];
 export const LABELS = { lecture: 'Lecture', lab: 'Laboratory', review: 'Review & assessment' };
-export const modules = [
-  'Infrastructure Foundations',
-  'Systems Administration',
-  'Azure Fundamentals',
-  'Azure Administration',
-  'Cloud Engineering & Automation',
-  'Operations & Capstone',
-];
+export const modules = MODULES;
 export function sessionDate(week: number, kind: Kind): Date {
   return new Date(Date.UTC(2026, 9, 24 + (week - 1) * 7 + { lecture: 0, lab: 1, review: 4 }[kind], 1));
 }

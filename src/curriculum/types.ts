@@ -7,6 +7,8 @@ export interface Resource {
   url: string;
   duration?: string;
   verified?: boolean;
+  reviewedOn?: string;
+  selection?: string;
 }
 export interface Section {
   title: string;
@@ -21,6 +23,8 @@ export interface Question {
   options?: string[];
   answer: number[];
   explanation: string;
+  domain?: string;
+  selfRubric?: string[];
 }
 export interface Lab {
   title: string;
@@ -50,4 +54,12 @@ export interface Week {
   assignment: string;
   review: string;
   reviewQuestions: string[];
+  status?: 'ready' | 'planned';
+  prerequisites?: string;
+  plan?: {
+    lecture: string[];
+    lab: string[];
+    review: string[];
+    outcome: string;
+  };
 }

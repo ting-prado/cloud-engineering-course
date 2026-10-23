@@ -1,4 +1,4 @@
-import { labRubric } from './curriculum';
+import { labRubric, weeks } from './curriculum';
 import type { Kind, Resource, Section } from './curriculum/types';
 import { allSessions, key } from './lib/academic';
 import { data } from './lib/store';
@@ -42,7 +42,8 @@ export const route = () => location.hash.slice(1).split('?')[0] || '/';
 export const lessonUrl = (week: number, kind: Kind) => `#/lesson/${week}/${kind}`;
 export const done = (week: number, kind: Kind) => data.completed.includes(key(week, kind));
 export const completion = () => Math.round((data.completed.length / 72) * 100);
-export const nextLesson = () => allSessions().find((s) => !data.completed.includes(s.id));
+export const nextLesson = () =>
+  allSessions().find((s) => weeks[s.week - 1].status === 'ready' && !data.completed.includes(s.id));
 export const pill = (text: string, cls = '') => `<span class="pill ${cls}">${esc(text)}</span>`;
 export const progress = (value: number, label: string) =>
   `<div class="progress" role="progressbar" aria-label="${esc(label)}" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="100"><span style="width:${value}%"></span></div>`;
@@ -75,8 +76,8 @@ export function section(s: Section, i: number) {
   return `<section class="prose-section" id="section-${i}">${i < 100 ? `<span class="section-number">${String(i + 1).padStart(2, '0')}</span>` : ''}<h2>${esc(s.title)}</h2>${paragraphs(s.body)}${s.diagram ? `<figure class="flow-diagram">${s.diagram.map((d, j) => `${j ? '<span class="flow-arrow">↓</span>' : ''}<div>${icon(j === 0 ? 'cloud' : j === s.diagram!.length - 1 ? 'folder' : 'code')}<span>${esc(d)}</span></div>`).join('')}<figcaption>A request crosses several responsibilities. Investigate each boundary.</figcaption></figure>` : ''}${s.code ? codeBlock(s.code, s.language) : ''}</section>`;
 }
 export function resources(items: Resource[]) {
-  return `<section id="resources" class="resource-section"><h2>Keep learning</h2><p class="subtle">Official references and carefully chosen companions. External links open in a new tab.</p><div class="resource-list">${items.map((r) => `<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="resource-card">${icon(r.type === 'Video' ? 'play' : 'book')}<span><small>${esc(r.provider)} · ${r.type}${r.duration ? ' · ' + esc(r.duration) : ''}</small><strong>${esc(r.title)}</strong><p>${esc(r.description)}</p><em>${r.verified ? 'Link reviewed during authoring' : 'Official reference · availability not individually verified'}</em></span>${icon('external')}</a>`).join('')}</div></section>`;
+  return `<section id="resources" class="resource-section"><h2>Selected references</h2><p class="subtle">The lesson teaches the required material here. Follow the named extracts within the reading budget; do not read entire reference trees. External links open in a new tab.</p><div class="resource-list">${items.map((r) => `<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="resource-card">${icon(r.type === 'Video' ? 'play' : 'book')}<span><small>${esc(r.provider)} · ${r.type}</small><strong>${esc(r.title)}</strong><p>${esc(r.description)}</p>${r.selection ? `<p><strong>Scope:</strong> ${esc(r.selection)}</p>` : ''}<em>${r.verified ? 'Content inspected' + (r.reviewedOn ? ' · ' + esc(r.reviewedOn) : '') : 'Availability not individually verified'}</em></span>${icon('external')}</a>`).join('')}</div></section>`;
 }
 export function rubric(items = labRubric) {
-  return `<table class="rubric-table"><thead><tr><th>Criterion</th><th>What good looks like</th><th>Points</th></tr></thead><tbody>${items.map((i) => `<tr><td>${i.name}</td><td>${i.description}</td><td>${i.points}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2">Total · self-assess with evidence</td><td>100</td></tr></tfoot></table>`;
+  return `<div class="table-scroll" role="region" aria-label="Grading rubric" tabindex="0"><table class="rubric-table"><thead><tr><th>Criterion</th><th>What good looks like</th><th>Points</th></tr></thead><tbody>${items.map((i) => `<tr><td>${i.name}</td><td>${i.description}</td><td>${i.points}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2">Total · self-assess with evidence</td><td>100</td></tr></tfoot></table></div>`;
 }

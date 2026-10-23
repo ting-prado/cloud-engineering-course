@@ -1,5 +1,17 @@
 # Authoring and extending the academy
 
+## R2 staged authoring — current source of truth
+
+The approved sequence is `CURRICULUM_AUDIT.md` Section 5, implemented as metadata in `src/curriculum/baseline.ts`. Only Week 1 is ready, in `week-01.ts`. Weeks 2–24 are planned outlines and expose no active quiz, completion or grade entry. Do not mark a week ready until its instructional text, runnable/tested or explicitly simulated fixture, independent variation, fault, costs/cleanup and assessment are complete. Batch targets are in `REDESIGN_STAGES.md`.
+
+The older semester content files, walkthroughs and lab guides are frozen original-curriculum material used by `legacy.ts`/`legacy-store.ts`. Do not edit those banks to implement R2; doing so changes validation of historical question indices. Build new versioned content modules and assemble them through `index.ts`.
+
+Progress schema 2 (`azure-2026-r2`) keeps schema-1 records as exact raw archives before writing current progress. The diagnostic has its own assessment ID and is never graded. Each current attempt records an assessment version. Week 1 uses `week-01-r2.1`; keep it stable in subsequent batches. Before adding more banks, extend the assessment-version lookup compatibly; do not globally bump a version and reinterpret old answers. A substantive question/order change needs a documented archive/migration path and regression tests.
+
+Current readiness includes exact 180/180/120-minute session plans, on-page explanations, selected inspected resource sections, shared evidence rather than extra essays, and honest manual/unsupported-execution labeling. The full mastery-gate record and independent graduation policy are future work; no Stage 1 UI should imply they are implemented.
+
+The remainder of this document describes original authoring contracts where still applicable; follow the R2 rules above when they differ.
+
 The curriculum is data, not component markup. Start with the `Week`, `Lab`, `Section`, `Question` and `Resource` interfaces in `src/curriculum/types.ts`.
 
 ## A weekly teaching unit

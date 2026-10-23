@@ -1,0 +1,1 @@
+{ "webPort": 4170, "apiPort": 4100, "upstreamPort": 4100, "dataFile": "data/guided.json" }

@@ -20,7 +20,13 @@ export function gradebook(d: StudentData) {
         .map(attemptScore)
         .filter((s): s is number => s !== null);
       const score =
-        cat.id === 'quiz' ? (attempts.length ? Math.max(...attempts) : null) : (d.grades[id] ?? null);
+        w.status !== 'ready'
+          ? null
+          : cat.id === 'quiz'
+            ? attempts.length
+              ? Math.max(...attempts)
+              : null
+            : (d.grades[id] ?? null);
       return { id, week: w.number, title: w.title, score };
     });
     const graded = items.filter((i) => i.score !== null);
