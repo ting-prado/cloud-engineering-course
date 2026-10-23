@@ -16,6 +16,10 @@ Dates are proposed delivery targets, not a claim that future work has already ru
 
 Only Week 1 has `status: ready` in R2. The other 23 weeks preserve approved titles, objectives, prerequisites, session outlines, intended outcomes and costs. Their lesson routes explicitly show planned status, contain no active quiz, and cannot accept completion or grades. Original lessons remain frozen in source for historical validation; they are not relabeled as revised content.
 
+## Mandatory acceptance before readiness
+
+Every future week must pass [the lesson acceptance gate](LESSON_ACCEPTANCE.md) and commit an evidence-backed `docs/acceptance/week-NN.md` record using [the template](acceptance/TEMPLATE.md) before changing `planned` to `ready`. Acceptance covers all three sessions: technical review, executed labs and independent troubleshooting solutions, objective/assessment alignment, inspected resources, verified cost/security instructions, realistic timing and executed cleanup. Cloud labs require actual pre/post inventory and cleanup evidence. A schedule target or passing structural/software tests cannot waive this gate. Pending checks keep the week planned; simulations cannot stand in for claimed live-cloud competence.
+
 ## Data and historical scores
 
 - R2 curriculum ID: `azure-2026-r2`. Current student schema: 2. Week 1 assessment version: `week-01-r2.1`.
