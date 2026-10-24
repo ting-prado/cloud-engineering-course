@@ -20,6 +20,7 @@ Copy to `docs/acceptance/week-NN.md`. Blank, unchecked or unresolved required it
 ## Required acceptance checklist
 
 - [ ] Technical explanations, diagrams, examples and command meanings reviewed against inspected sources; corrections resolved.
+- [ ] Writing walkthrough completed against `docs/INSTRUCTIONAL_WRITING.md`: terms defined at first use, glossary examples, what/why/how explanations, actionable guided steps and contextual commands; independent solutions remain withheld. Evidence records actual review findings and corrections.
 - [ ] Published artifact/setup and guided lab executed in the supported environment; expected outcomes observed.
 - [ ] Independent variation executed from its requirements and validated, including negative/control checks.
 - [ ] Deliberate fault reproduced, valid constrained solution executed, original operation retested; reviewer solution and acceptable alternatives recorded without learner answer leakage.

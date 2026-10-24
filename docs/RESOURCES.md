@@ -2,6 +2,8 @@
 
 ## R2 Stage 1 resources
 
+Week 1 clarity revision: required MDN/Node HTTP/React extracts were reopened and inspected, together with optional Node process and Azure physical-infrastructure material. Reviewer-only Docker, curl and Fetch references and access limitations are listed in [the acceptance record](acceptance/week-01.md#inspected-sources). Required reading time remains 25 minutes. The Fetch review also identified the blocked old incident web port; the current workload uses 4192.
+
 Current R2 Week 1 references are authored separately in `src/curriculum/week-01.ts`, with inspected-content dates, named extracts and explicit student time budgets. Inspected October 23, 2026: MDN “What is a web server?” (hardware/software and static/dynamic content), Node HTTP `http.createServer`, React `createRoot` browser rendering, Node 22 process PID/RSS/uptime, and the Azure core architecture module. Required reading is MDN 8 + Node HTTP 10 + React 7 = 25 minutes of academy-assigned study time, not invented provider runtimes. The process and Azure references are optional deeper material; no full external course is required. Required mechanisms are taught on the lesson pages.
 
 The version-specific Node 22 HTTP URL could not be fetched by the browsing tool, so the lesson instead links the inspected current official HTTP page. The basic HTTP methods used by the supplied workload are compatible with the supported Node baseline and are tested locally. The Node 22 process page was inspected successfully. No video is required or embedded in Stage 1.

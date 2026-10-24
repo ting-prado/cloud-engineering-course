@@ -1,0 +1,50 @@
+﻿[
+    {
+        "path":  "src/curriculum/week-01.ts",
+        "sha256":  "021b35901ffe32ae87ffd5ad821097ec1415c0a59019cf72a1b8ae2b3c185713"
+    },
+    {
+        "path":  "src/curriculum/week-01-teaching.ts",
+        "sha256":  "a4be2d3a78c065fc1d30907de3d7ec5d2462a5f74ecb1e1cffc8a277fd73b8f4"
+    },
+    {
+        "path":  "src/curriculum/types.ts",
+        "sha256":  "b94a47fddb586febd51f61ce1867a943e819d09b1c0a1c905c4e492a058e7583"
+    },
+    {
+        "path":  "src/pages/reader.ts",
+        "sha256":  "5bf4f5209aee2597e848144fbd802f00605ec38f2509541ae473f09a7413dacc"
+    },
+    {
+        "path":  "src/ui.ts",
+        "sha256":  "8b22a0e5014de9b3a986a302f8b2a2cf915344290e6bbc916b2d6d34bb743f71"
+    },
+    {
+        "path":  "src/styles.css",
+        "sha256":  "9531ddd0e23deddf7f7fa2ccbbeaafd04a75801654f3403aa6a6e983db00fcf8"
+    },
+    {
+        "path":  "labs/week-01/README.md",
+        "sha256":  "de83c15518ace173fceb733b6e2f70d5eebf189a3b3c0e0d8b440a0a798a3c69"
+    },
+    {
+        "path":  "labs/week-01/incident.json",
+        "sha256":  "9e4186decb6f92b2c13e231f9fe416369abed58446e4362383441c6568177a73"
+    },
+    {
+        "path":  "public/labs/week-01-workload.zip",
+        "sha256":  "accca147dd9668527022442a63cd681a1f7f2822e14d7a4e9d9e229cf2239faa"
+    },
+    {
+        "path":  "tests/fixtures/week-01-before-clarity.json",
+        "sha256":  "62faa22793b9ee1483ad3ce69fe630fede4ca16393e40ab702fb9dacc4b1fd0c"
+    },
+    {
+        "path":  "tests/academy.test.ts",
+        "sha256":  "1962346d23aa53f7c9e679b0ee790f8aae7a402fefd24c7bfd470fba3294441e"
+    },
+    {
+        "path":  "tests/browser/learning.spec.ts",
+        "sha256":  "c37b43d4ca8f256764c5daead21133ec9b278b9cc50534e325c6ab4ef852e7ee"
+    }
+]

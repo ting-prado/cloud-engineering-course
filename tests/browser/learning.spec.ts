@@ -1,5 +1,6 @@
 ﻿import { test, expect } from '@playwright/test';
 import fs from 'node:fs/promises';
+import path from 'node:path';
 import { emptyData as legacyEmpty } from '../../src/lib/legacy-store';
 import { questionsForAssessment } from '../../src/curriculum';
 import {
@@ -60,6 +61,66 @@ async function fillQuiz(page) {
       'The directly available API and refused upstream target differ. Inspect and align the proxy target while preserving assigned listeners, reload configuration, and retest the original proxied request. This does not validate every dependency.',
     );
 }
+
+test('plain-language teaching has usable explanations, a shared glossary and actionable guided steps', async ({
+  page,
+}) => {
+  await page.goto('/#/lesson/1/lecture');
+  const concept = page.locator('.concept-explanation').first();
+  await expect(concept.getByRole('heading', { name: 'What is it?', exact: true })).toBeVisible();
+  const check = page.locator('.comprehension-check').first();
+  await expect(check.locator('details')).not.toHaveAttribute('open');
+  await check.getByText('Show explanation', { exact: true }).click();
+  await expect(check.locator('details')).toHaveAttribute('open');
+  for (const kind of ['lecture', 'lab', 'review']) {
+    await page.goto(`/#/lesson/1/${kind}`);
+    await page.getByRole('button', { name: 'Glossary · definitions and examples' }).click();
+    await page.locator('#terminology summary').click();
+    await expect(page.locator('#terminology')).toContainText('Process ID');
+    await expect(page.locator('#terminology')).toContainText('Example:');
+  }
+  await page.goto('/#/lesson/1/lab');
+  await expect(page.locator('#lab-part-1 ol > li')).toHaveCount(8);
+  await expect(page.locator('#lab-part-1')).toContainText('Terminal B');
+  await expect(page.locator('#lab-part-1')).toContainText('Options:');
+  await expect(page.locator('#lab-part-1')).toContainText('Expected result:');
+  await expect(page.locator('#lab-part-1')).toContainText('What to submit');
+  await expect(page.locator('#incident-feedback')).toHaveCount(0);
+  await expect(page.locator('#lab-part-3')).not.toContainText('4301');
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.getByRole('button', { name: 'Look up a word', exact: true }).click();
+  await expect(page.locator('#terminology h2')).toBeInViewport();
+  await page.locator('#terminology summary').click();
+  await expect(page.locator('#terminology dl')).toBeVisible();
+});
+
+test('existing R2 progress and assessment records survive the writing revision and another save', async ({
+  page,
+}) => {
+  const before = JSON.parse(
+    await fs.readFile(new URL('../fixtures/week-01-before-clarity.json', import.meta.url), 'utf8'),
+  );
+  await page.addInitScript((record) => {
+    if (!localStorage.getItem('cloud-academy-v2'))
+      localStorage.setItem('cloud-academy-v2', JSON.stringify(record));
+  }, before.record);
+  await page.goto('/#/lesson/1/review');
+  await expect(page.locator('.attempt-review')).toContainText('Final score: 81.3%');
+  await expect(page.locator('#quiz-form input[name=q0][value="2"]')).toBeChecked();
+  await expect(page.locator('#quiz-form textarea[name=q7]')).toHaveValue('My unfinished answer.');
+  await page.goto('/#/lesson/1/lecture');
+  await expect(page.getByRole('button', { name: 'Mark incomplete' })).toBeVisible();
+  await expect(page.locator('#lesson-notes')).toHaveValue(before.record.notes['1-lecture']);
+  await page.locator('#lesson-notes').fill('A clearer explanation helped; my old attempts remain.');
+  await page.reload();
+  const after = await page.evaluate(() => JSON.parse(localStorage.getItem('cloud-academy-v2')!));
+  expect(after.attempts).toEqual(before.record.attempts);
+  expect(after.grades).toEqual(before.record.grades);
+  expect(after.submissions).toEqual(before.record.submissions);
+  expect(after.drafts).toEqual(before.record.drafts);
+  expect(after.completed).toEqual(before.record.completed);
+  expect(after.notes['1-lecture']).toContain('A clearer explanation helped');
+});
 
 test('Week 1 diagnostic, learning, notes, quiz, self-score, submissions and export persist', async ({
   page,
@@ -282,6 +343,33 @@ test('built subdirectory navigation and workload download work without a backend
   await page.goto('/dist/#/lesson/24/review');
   await expect(page.locator('main')).toContainText('PLANNED · NOT READY');
 });
+test('published default incident opens in a browser, has a solvable fault and stops cleanly', async ({
+  page,
+}) => {
+  const root = await extractWorkload();
+  const config = JSON.parse(await fs.readFile(path.join(root, 'incident.json'), 'utf8'));
+  let running = await startWorkload(root, config, 'incident');
+  try {
+    await page.goto(running.url);
+    await expect(page.getByRole('heading', { name: 'Request notebook' })).toBeVisible();
+    await page.getByRole('button', { name: 'Refresh API status' }).click();
+    await expect(page.getByRole('alert')).toContainText('502');
+    expect((await page.request.get(running.apiUrl + '/api/status')).status()).toBe(200);
+    await stopWorkload(running);
+    running = await startWorkload(root, { ...config, upstreamPort: config.apiPort }, 'incident');
+    await page.reload();
+    await page.getByRole('button', { name: 'Refresh API status' }).click();
+    await expect(page.locator('pre')).toContainText(`"port": ${config.apiPort}`);
+    await expect(page.getByRole('alert')).toHaveCount(0);
+    expect((await page.request.get(running.url + '/missing.html')).status()).toBe(404);
+  } finally {
+    await stopWorkload(running);
+    for (const url of [running.url, running.apiUrl])
+      await expect(page.request.get(url + '/api/status', { timeout: 2000 })).rejects.toThrow();
+    await cleanupWorkload(root);
+  }
+});
+
 test('actual downloaded React/Node app runs in separate processes and survives restart correctly', async ({
   page,
 }) => {

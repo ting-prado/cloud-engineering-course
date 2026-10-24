@@ -1879,6 +1879,8 @@ footer {
 .toc-inner {
   position: sticky;
   top: 28px;
+  max-height: calc(100vh - 56px);
+  overflow-y: auto;
   border-left: 1px solid var(--line);
   padding: 5px 0 0 20px;
 }

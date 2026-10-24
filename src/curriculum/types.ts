@@ -16,6 +16,27 @@ export interface Section {
   code?: string;
   language?: string;
   diagram?: string[];
+  concept?: {
+    what: string;
+    why: string;
+    how: string[];
+    example: string;
+    remember: string;
+  };
+  steps?: string[];
+  purpose?: string;
+  expected?: string;
+  evidence?: string[];
+  checks?: { question: string; answer: string }[];
+  commands?: {
+    where: string;
+    command: string;
+    does: string;
+    options?: string;
+    expect: string;
+    ifFails: string;
+    language?: string;
+  }[];
 }
 export interface Question {
   prompt: string;

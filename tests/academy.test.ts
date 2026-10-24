@@ -1,5 +1,6 @@
 ﻿import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
   weeks,
   questionsFor,
@@ -25,6 +26,26 @@ import {
   type Attempt,
 } from '../src/lib/store.ts';
 import { gradebook } from '../src/lib/grades.ts';
+import { section } from '../src/ui.ts';
+
+test('clarity revision preserves existing R2 attempts, drafts, manual scores and answer mappings', () => {
+  const before = JSON.parse(
+    readFileSync(new URL('./fixtures/week-01-before-clarity.json', import.meta.url), 'utf8'),
+  );
+  for (const bank of before.signatures) {
+    const current = questionsForAssessment(bank.id);
+    assert.equal(current.length, bank.questions.length);
+    current.forEach((question, i) => {
+      assert.equal(question.type, bank.questions[i].type);
+      assert.deepEqual(question.answer, bank.questions[i].answer);
+      assert.equal(question.options?.length, bank.questions[i].options?.length);
+    });
+  }
+  const restored = parseBackup(JSON.stringify(before.record));
+  assert.deepEqual(restored, before.record);
+  assert.deepEqual(restored.attempts.map(attemptScore), before.expectedScores);
+  assert.deepEqual(parseBackup(JSON.stringify(restored)), restored);
+});
 
 class MemoryStorage {
   values = new Map<string, string>();
@@ -97,7 +118,10 @@ test('approved R2 baseline has all 24 weeks; only three Week 1 pages are ready',
     assert.equal(w.sections.length, 0);
     assert.equal(questionsFor(w.number, [12, 24].includes(w.number)).length, 0);
   }
-  assert.ok(weeks[0].sections.reduce((n, s) => n + s.body.split(/\s+/).length, 0) > 1800);
+  const teaching = weeks[0].sections.map(section).join('');
+  assert.match(teaching, /What is it\?/);
+  assert.match(teaching, /Why do we need it\?/);
+  assert.match(teaching, /Show explanation/);
   assert.equal(weeks[0].questions.length, 8);
   assert.equal(questionsForAssessment('1-diagnostic').length, 6);
   assert.equal(questionsForAssessment('2-quiz').length, 0);

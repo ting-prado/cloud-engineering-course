@@ -1,0 +1,187 @@
+Week 1 clarity revision: local execution evidence
+
+Executed: 2026-10-24T02:05:52.981Z
+
+Environment: win32 x64, Node v24.4.1
+
+Published ZIP SHA256: accca147dd9668527022442a63cd681a1f7f2822e14d7a4e9d9e229cf2239faa
+
+Guided run: Starting guided. Both listeners bind only to 127.0.0.1. Press Ctrl+C to stop both processes.
+[api 2860] Listening http://127.0.0.1:4100; file data/guided.json
+[web 14184] Listening http://127.0.0.1:4170
+
+curl -i http://127.0.0.1:4170/
+HTTP/1.1 200 OK
+content-type: text/html
+cache-control: no-store
+content-security-policy: default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'
+Date: Sat, 24 Oct 2026 02:05:53 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Academy workload · Request notebook</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="/browser.js" defer></script>
+  </body>
+</html>
+
+curl -i http://127.0.0.1:4170/api/status
+HTTP/1.1 200 OK
+content-type: application/json
+cache-control: no-store
+Date: Sat, 24 Oct 2026 02:05:53 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"pid":2860,"port":4100,"uptimeSeconds":0,"memoryBytes":57917440,"counter":0}
+
+curl -i http://127.0.0.1:4100/api/status
+HTTP/1.1 200 OK
+content-type: application/json
+cache-control: no-store
+Date: Sat, 24 Oct 2026 02:05:53 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"pid":2860,"port":4100,"uptimeSeconds":0,"memoryBytes":58007552,"counter":0}
+
+curl -i http://127.0.0.1:4170/missing.html
+HTTP/1.1 404 Not Found
+content-type: text/plain
+Date: Sat, 24 Oct 2026 02:05:53 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+No such static file
+
+Before restart: counter 2, saved text week01 persisted sample.
+
+Cleanup check: http://127.0.0.1:4170/api/status -> curl exit 7 (connection refused)
+
+Cleanup check: http://127.0.0.1:4100/api/status -> curl exit 7 (connection refused)
+
+Repeated stop: safe no-op. No unrelated process targeted.
+
+After restart: counter 0, saved text unchanged. Process restart only; no backup claim.
+
+Cleanup check: http://127.0.0.1:4170/api/status -> curl exit 7 (connection refused)
+
+Cleanup check: http://127.0.0.1:4100/api/status -> curl exit 7 (connection refused)
+
+Repeated stop: safe no-op. No unrelated process targeted.
+
+curl -i http://127.0.0.1:4180/api/status
+HTTP/1.1 200 OK
+content-type: application/json
+cache-control: no-store
+Date: Sat, 24 Oct 2026 02:06:01 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"pid":17516,"port":4200,"uptimeSeconds":0,"memoryBytes":57962496,"counter":0}
+
+Independent variation: required 4180/4200 listeners and separate variation file verified.
+
+Cleanup check: http://127.0.0.1:4180/api/status -> curl exit 7 (connection refused)
+
+Cleanup check: http://127.0.0.1:4200/api/status -> curl exit 7 (connection refused)
+
+Repeated stop: safe no-op. No unrelated process targeted.
+
+curl -i http://127.0.0.1:4192/
+HTTP/1.1 200 OK
+content-type: text/html
+cache-control: no-store
+content-security-policy: default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'
+Date: Sat, 24 Oct 2026 02:06:06 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Academy workload · Request notebook</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="/browser.js" defer></script>
+  </body>
+</html>
+
+curl -i http://127.0.0.1:4192/api/status
+HTTP/1.1 502 Bad Gateway
+content-type: application/json
+cache-control: no-store
+Date: Sat, 24 Oct 2026 02:06:06 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"error":"Upstream request failed. Inspect the listener and web-process evidence."}
+
+curl -i http://127.0.0.1:4300/api/status
+HTTP/1.1 200 OK
+content-type: application/json
+cache-control: no-store
+Date: Sat, 24 Oct 2026 02:06:06 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"pid":14928,"port":4300,"uptimeSeconds":0,"memoryBytes":58183680,"counter":0}
+
+Initial incident: static 200, forwarded API 502, direct API 200.
+
+Cleanup check: http://127.0.0.1:4192/api/status -> curl exit 7 (connection refused)
+
+Cleanup check: http://127.0.0.1:4300/api/status -> curl exit 7 (connection refused)
+
+Repeated stop: safe no-op. No unrelated process targeted.
+
+curl -i http://127.0.0.1:4192/api/status
+HTTP/1.1 200 OK
+content-type: application/json
+cache-control: no-store
+Date: Sat, 24 Oct 2026 02:06:10 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"pid":4736,"port":4300,"uptimeSeconds":0,"memoryBytes":58359808,"counter":0}
+
+curl -i http://127.0.0.1:4192/missing.html
+HTTP/1.1 404 Not Found
+content-type: text/plain
+Date: Sat, 24 Oct 2026 02:06:10 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+No such static file
+
+Constrained repair: only upstream target aligned; assigned listeners/data file unchanged. Proxied/direct API PID matched. Missing file still 404 (negative control).
+
+Cleanup check: http://127.0.0.1:4192/api/status -> curl exit 7 (connection refused)
+
+Cleanup check: http://127.0.0.1:4300/api/status -> curl exit 7 (connection refused)
+
+Repeated stop: safe no-op. No unrelated process targeted.
+
+Extracted disposable folder removed using exact-path-checked helper. No Azure resources or production data used. Browser controls and separate process IDs are independently exercised by learning.spec.ts.

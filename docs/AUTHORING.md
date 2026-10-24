@@ -18,6 +18,8 @@ The curriculum is data, not component markup. Start with the `Week`, `Lab`, `Sec
 
 ## A weekly teaching unit
 
+Follow [the instructional writing standard](INSTRUCTIONAL_WRITING.md) for every session, quiz, lab instruction and feedback message. Teach new concepts using what/why/how/example/remember; explain terms at first use. Give guided labs numbered actions, command context, expected results and required evidence. Keep independent solutions withheld. `Section` supports structured concept explanations, command guides, steps and expandable comprehension checks; Week 1's teaching text and glossary are in `src/curriculum/week-01-teaching.ts`. The acceptance record must include a writing/terminology walkthrough, not just software checks.
+
 Each week has one source record, assembled into three distinct pages:
 
 - Saturday: objectives, authored sections, terminology, misconception, summary, retrieval questions and resources.
